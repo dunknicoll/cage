@@ -32,7 +32,7 @@ function gotCage(cage) {
 
 function Film(film) {
   this.title    = film.title;
-  this.year     = film.year;
+  this.year     = film.year.replace(/\D/g,'');
   this.offset   = map(this.year, 1964, 2020, 0, width/3);
   this.t        = (millis()/(1000.0-this.offset));
   this.px       = (middle.x+this.offset*cos(this.t));
