@@ -1,27 +1,23 @@
 
-var position,cageFilms;
+var middle,cageFilms,canCage;
 
 function setup() {
   createCanvas(800, 600);
-  position = createVector(width/2, height/2);
-  loadJSON('cage.json', gotCage);
+  canCage = false;
+  middle = createVector(width/2, height/2);
   cageFilms = [];
+  loadJSON('cage.json', gotCage);
 }
 
 function draw() {
   background(200);
-  for(i=0;i<cageFilms.length;i++)
-  {
-    push();
-    var t = (millis()/(1000.0-cageFilms[i]));
-    var x = (position.x+cageFilms[i]*cos(t));
-    var y = (position.y+cageFilms[i]*sin(t));
-    translate(x, y);
-    ellipse(0,0, 16, 16);
-    // rotate(1,PI/2);
-    pop();
+  if (canCage) {
+    for(i=0;i<cageFilms.length;i++)
+    {
+      cageFilms[i].update();
+      cageFilms[i].render();
+    }
   }
-
 }
 
 function gotCage(cage) {
@@ -29,8 +25,33 @@ function gotCage(cage) {
   var films = movies.filmographies[0].filmography;
   for(i=0;i<films.length;i++)
   {
-    var pos = films[i].year;
-    pos = map(pos, 1964, 2020, 0, width/3);
-    cageFilms[i] = pos;
+    cageFilms[i] = new Film(films[i]);
   }
+  canCage = true;
 }
+
+function Film(film) {
+  this.title    = film.title;
+  this.year     = film.year;
+  this.offset   = map(this.year, 1964, 2020, 0, width/3);
+  this.t        = (millis()/(1000.0-this.offset));
+  this.px       = (middle.x+this.offset*cos(this.t));
+  this.py       = (middle.y+this.offset*sin(this.t));
+}
+
+Film.prototype.render = function() {
+  push();
+    fill(255);
+    noStroke();
+    translate(this.px, this.py);
+    ellipse(0,0, 10, 10);
+    fill(0);
+    text(this.title, 5, 5); 
+  pop();
+};
+
+Film.prototype.update = function() {
+  this.t = (millis()/(1000.0-this.offset));
+  this.px = (middle.x+this.offset*cos(this.t));
+  this.py = (middle.y+this.offset*sin(this.t));
+};
